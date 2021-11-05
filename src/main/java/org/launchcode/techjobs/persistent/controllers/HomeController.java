@@ -41,21 +41,23 @@ public class HomeController {
     @PostMapping("add")
     public String processAddJobForm(@ModelAttribute @Valid Job newJob,
                                        Errors errors, Model model, @RequestParam int employerId, @RequestParam List<Integer> skills) {
-//
+
         if (errors.hasErrors()) {
-            model.addAttribute("title", "Add Job");
             return "add";
-        } else {
-            Optional<Employer> result = employerRepository.findById(employerId);
-            if (result.isEmpty()){
-                model.addAttribute("title", "Invalid Employer ID: " + employerId);
-            } else {
-                Employer employer = result.get();
-                model.addAttribute("title", "Jobs in:" + employer.getName());
-                model.addAttribute("employers", employer.getJobs());
-            }
         }
-        employerRepository.findById(employerId);
+
+        Optional<Employer> optEmployer = employerRepository.findById(employerId);
+        if (optEmployer.isEmpty()){
+            model.addAttribute("title", "Invalid Employer ID: " + employerId);
+        } else {
+            Employer employer = optEmployer.get();
+            model.addAttribute("title", "Jobs from: " + employer.getName());
+            model.addAttribute("employers", employer.getJobs());
+            newJob.setEmployer(employer);
+        }
+
+
+//        jobRepository.save(newJob);
         return "redirect:";
     }
 
